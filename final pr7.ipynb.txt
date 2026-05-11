@@ -1,0 +1,823 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "ba5a829f-0b63-4673-b9d9-169f211b91d0",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "[nltk_data] Downloading package punkt to\n",
+      "[nltk_data]     C:\\Users\\Avadhoot\\AppData\\Roaming\\nltk_data...\n",
+      "[nltk_data]   Package punkt is already up-to-date!\n",
+      "[nltk_data] Downloading package punkt_tab to\n",
+      "[nltk_data]     C:\\Users\\Avadhoot\\AppData\\Roaming\\nltk_data...\n",
+      "[nltk_data]   Unzipping tokenizers\\punkt_tab.zip.\n",
+      "[nltk_data] Downloading package averaged_perceptron_tagger to\n",
+      "[nltk_data]     C:\\Users\\Avadhoot\\AppData\\Roaming\\nltk_data...\n",
+      "[nltk_data]   Package averaged_perceptron_tagger is already up-to-\n",
+      "[nltk_data]       date!\n",
+      "[nltk_data] Downloading package averaged_perceptron_tagger_eng to\n",
+      "[nltk_data]     C:\\Users\\Avadhoot\\AppData\\Roaming\\nltk_data...\n",
+      "[nltk_data]   Unzipping taggers\\averaged_perceptron_tagger_eng.zip.\n",
+      "[nltk_data] Downloading package stopwords to\n",
+      "[nltk_data]     C:\\Users\\Avadhoot\\AppData\\Roaming\\nltk_data...\n",
+      "[nltk_data]   Package stopwords is already up-to-date!\n",
+      "[nltk_data] Downloading package wordnet to\n",
+      "[nltk_data]     C:\\Users\\Avadhoot\\AppData\\Roaming\\nltk_data...\n",
+      "[nltk_data]   Package wordnet is already up-to-date!\n",
+      "[nltk_data] Downloading package omw-1.4 to\n",
+      "[nltk_data]     C:\\Users\\Avadhoot\\AppData\\Roaming\\nltk_data...\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "True"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import nltk\n",
+    "\n",
+    "nltk.download(\"punkt\")\n",
+    "nltk.download(\"punkt_tab\")\n",
+    "nltk.download(\"averaged_perceptron_tagger\")\n",
+    "nltk.download(\"averaged_perceptron_tagger_eng\")\n",
+    "nltk.download(\"stopwords\")\n",
+    "nltk.download(\"wordnet\")\n",
+    "nltk.download(\"omw-1.4\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "6e8fa13c-0d78-430c-bcef-d69601bfd986",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import nltk\n",
+    "import pandas as pd\n",
+    "import math\n",
+    "\n",
+    "from nltk.tokenize import word_tokenize\n",
+    "from nltk.corpus import stopwords\n",
+    "from nltk.stem import PorterStemmer\n",
+    "from nltk.stem import WordNetLemmatizer"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "bf636484-251f-4b25-bc6e-fff13c3218b5",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Sample Document:\n",
+      "\n",
+      "Text analytics is the process of converting unstructured text data into meaningful information.\n",
+      "Students are learning text preprocessing techniques such as tokenization, stemming, lemmatization,\n",
+      "stop word removal, and POS tagging. These techniques are useful in natural language processing.\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "document = \"\"\"\n",
+    "Text analytics is the process of converting unstructured text data into meaningful information.\n",
+    "Students are learning text preprocessing techniques such as tokenization, stemming, lemmatization,\n",
+    "stop word removal, and POS tagging. These techniques are useful in natural language processing.\n",
+    "\"\"\"\n",
+    "\n",
+    "print(\"Sample Document:\")\n",
+    "print(document)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "683ddd6d-9aea-4002-b90a-942c5e491ac3",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Document after converting to lowercase:\n",
+      "\n",
+      "text analytics is the process of converting unstructured text data into meaningful information.\n",
+      "students are learning text preprocessing techniques such as tokenization, stemming, lemmatization,\n",
+      "stop word removal, and pos tagging. these techniques are useful in natural language processing.\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "document_lower = document.lower()\n",
+    "\n",
+    "print(\"Document after converting to lowercase:\")\n",
+    "print(document_lower)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "0d1f6eae-1a90-4b08-93fe-e963c709870f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Tokens:\n",
+      "['text', 'analytics', 'is', 'the', 'process', 'of', 'converting', 'unstructured', 'text', 'data', 'into', 'meaningful', 'information', '.', 'students', 'are', 'learning', 'text', 'preprocessing', 'techniques', 'such', 'as', 'tokenization', ',', 'stemming', ',', 'lemmatization', ',', 'stop', 'word', 'removal', ',', 'and', 'pos', 'tagging', '.', 'these', 'techniques', 'are', 'useful', 'in', 'natural', 'language', 'processing', '.']\n"
+     ]
+    }
+   ],
+   "source": [
+    "tokens = word_tokenize(document_lower)\n",
+    "\n",
+    "print(\"Tokens:\")\n",
+    "print(tokens)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "c51afd85-d99d-4576-870c-b14b1eb3a3ee",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Words after removing punctuation:\n",
+      "['text', 'analytics', 'is', 'the', 'process', 'of', 'converting', 'unstructured', 'text', 'data', 'into', 'meaningful', 'information', 'students', 'are', 'learning', 'text', 'preprocessing', 'techniques', 'such', 'as', 'tokenization', 'stemming', 'lemmatization', 'stop', 'word', 'removal', 'and', 'pos', 'tagging', 'these', 'techniques', 'are', 'useful', 'in', 'natural', 'language', 'processing']\n"
+     ]
+    }
+   ],
+   "source": [
+    "words = []\n",
+    "\n",
+    "for token in tokens:\n",
+    "    if token.isalpha():\n",
+    "        words.append(token)\n",
+    "\n",
+    "print(\"Words after removing punctuation:\")\n",
+    "print(words)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "cd38242a-fa48-41c3-8d98-8397d290b3ad",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "POS Tags:\n",
+      "[('text', 'NN'), ('analytics', 'NNS'), ('is', 'VBZ'), ('the', 'DT'), ('process', 'NN'), ('of', 'IN'), ('converting', 'VBG'), ('unstructured', 'JJ'), ('text', 'NN'), ('data', 'NNS'), ('into', 'IN'), ('meaningful', 'JJ'), ('information', 'NN'), ('students', 'NNS'), ('are', 'VBP'), ('learning', 'VBG'), ('text', 'IN'), ('preprocessing', 'VBG'), ('techniques', 'NNS'), ('such', 'JJ'), ('as', 'IN'), ('tokenization', 'NN'), ('stemming', 'VBG'), ('lemmatization', 'NN'), ('stop', 'NN'), ('word', 'NN'), ('removal', 'NN'), ('and', 'CC'), ('pos', 'NN'), ('tagging', 'VBG'), ('these', 'DT'), ('techniques', 'NNS'), ('are', 'VBP'), ('useful', 'JJ'), ('in', 'IN'), ('natural', 'JJ'), ('language', 'NN'), ('processing', 'NN')]\n"
+     ]
+    }
+   ],
+   "source": [
+    "pos_tags = nltk.pos_tag(words)\n",
+    "\n",
+    "print(\"POS Tags:\")\n",
+    "print(pos_tags)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "e07cdc41-0e1e-4a5c-a683-50862ad548f8",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Words after stop words removal:\n",
+      "['text', 'analytics', 'process', 'converting', 'unstructured', 'text', 'data', 'meaningful', 'information', 'students', 'learning', 'text', 'preprocessing', 'techniques', 'tokenization', 'stemming', 'lemmatization', 'stop', 'word', 'removal', 'pos', 'tagging', 'techniques', 'useful', 'natural', 'language', 'processing']\n"
+     ]
+    }
+   ],
+   "source": [
+    "stop_words = set(stopwords.words(\"english\"))\n",
+    "\n",
+    "filtered_words = []\n",
+    "\n",
+    "for word in words:\n",
+    "    if word not in stop_words:\n",
+    "        filtered_words.append(word)\n",
+    "\n",
+    "print(\"Words after stop words removal:\")\n",
+    "print(filtered_words)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "9a834df9-34e0-4969-8220-1478dfc8556e",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Stemmed Words:\n",
+      "['text', 'analyt', 'process', 'convert', 'unstructur', 'text', 'data', 'meaning', 'inform', 'student', 'learn', 'text', 'preprocess', 'techniqu', 'token', 'stem', 'lemmat', 'stop', 'word', 'remov', 'po', 'tag', 'techniqu', 'use', 'natur', 'languag', 'process']\n"
+     ]
+    }
+   ],
+   "source": [
+    "stemmer = PorterStemmer()\n",
+    "\n",
+    "stemmed_words = []\n",
+    "\n",
+    "for word in filtered_words:\n",
+    "    stemmed_words.append(stemmer.stem(word))\n",
+    "\n",
+    "print(\"Stemmed Words:\")\n",
+    "print(stemmed_words)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "e879766c-150f-4e6a-b662-bbcbacdf18e8",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Lemmatized Words:\n",
+      "['text', 'analytics', 'process', 'converting', 'unstructured', 'text', 'data', 'meaningful', 'information', 'student', 'learning', 'text', 'preprocessing', 'technique', 'tokenization', 'stemming', 'lemmatization', 'stop', 'word', 'removal', 'po', 'tagging', 'technique', 'useful', 'natural', 'language', 'processing']\n"
+     ]
+    }
+   ],
+   "source": [
+    "lemmatizer = WordNetLemmatizer()\n",
+    "\n",
+    "lemmatized_words = []\n",
+    "\n",
+    "for word in filtered_words:\n",
+    "    lemmatized_words.append(lemmatizer.lemmatize(word))\n",
+    "\n",
+    "print(\"Lemmatized Words:\")\n",
+    "print(lemmatized_words)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "995c6f2b-8b63-4975-9b44-5f866c90efdb",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Documents:\n",
+      "Text analytics converts text data into meaningful information\n",
+      "Students are learning text preprocessing techniques\n",
+      "Tokenization stemming and lemmatization are important text processing steps\n"
+     ]
+    }
+   ],
+   "source": [
+    "documents = [\n",
+    "    \"Text analytics converts text data into meaningful information\",\n",
+    "    \"Students are learning text preprocessing techniques\",\n",
+    "    \"Tokenization stemming and lemmatization are important text processing steps\"\n",
+    "]\n",
+    "\n",
+    "print(\"Documents:\")\n",
+    "for doc in documents:\n",
+    "    print(doc)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "42ac67ae-684d-4d91-835e-c10e586171ec",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Processed Documents:\n",
+      "[['text', 'analytics', 'converts', 'text', 'data', 'meaningful', 'information'], ['students', 'learning', 'text', 'preprocessing', 'techniques'], ['tokenization', 'stemming', 'lemmatization', 'important', 'text', 'processing', 'steps']]\n"
+     ]
+    }
+   ],
+   "source": [
+    "processed_documents = []\n",
+    "\n",
+    "for doc in documents:\n",
+    "    doc = doc.lower()\n",
+    "    \n",
+    "    tokens = word_tokenize(doc)\n",
+    "    \n",
+    "    words = []\n",
+    "    \n",
+    "    for token in tokens:\n",
+    "        if token.isalpha() and token not in stop_words:\n",
+    "            words.append(token)\n",
+    "    \n",
+    "    processed_documents.append(words)\n",
+    "\n",
+    "print(\"Processed Documents:\")\n",
+    "print(processed_documents)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "82afa306-0bec-455e-8d3d-5e09c3aedf93",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Vocabulary:\n",
+      "['text', 'analytics', 'converts', 'data', 'meaningful', 'information', 'students', 'learning', 'preprocessing', 'techniques', 'tokenization', 'stemming', 'lemmatization', 'important', 'processing', 'steps']\n"
+     ]
+    }
+   ],
+   "source": [
+    "vocabulary = []\n",
+    "\n",
+    "for doc in processed_documents:\n",
+    "    for word in doc:\n",
+    "        if word not in vocabulary:\n",
+    "            vocabulary.append(word)\n",
+    "\n",
+    "print(\"Vocabulary:\")\n",
+    "print(vocabulary)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "8464475a-b140-48d7-a1d7-cf5163f7094d",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Term Frequency Table:\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>text</th>\n",
+       "      <th>analytics</th>\n",
+       "      <th>converts</th>\n",
+       "      <th>data</th>\n",
+       "      <th>meaningful</th>\n",
+       "      <th>information</th>\n",
+       "      <th>students</th>\n",
+       "      <th>learning</th>\n",
+       "      <th>preprocessing</th>\n",
+       "      <th>techniques</th>\n",
+       "      <th>tokenization</th>\n",
+       "      <th>stemming</th>\n",
+       "      <th>lemmatization</th>\n",
+       "      <th>important</th>\n",
+       "      <th>processing</th>\n",
+       "      <th>steps</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0.285714</td>\n",
+       "      <td>0.142857</td>\n",
+       "      <td>0.142857</td>\n",
+       "      <td>0.142857</td>\n",
+       "      <td>0.142857</td>\n",
+       "      <td>0.142857</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>0.200000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.2</td>\n",
+       "      <td>0.2</td>\n",
+       "      <td>0.2</td>\n",
+       "      <td>0.2</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>0.142857</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.142857</td>\n",
+       "      <td>0.142857</td>\n",
+       "      <td>0.142857</td>\n",
+       "      <td>0.142857</td>\n",
+       "      <td>0.142857</td>\n",
+       "      <td>0.142857</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "       text  analytics  converts      data  meaningful  information  students  \\\n",
+       "0  0.285714   0.142857  0.142857  0.142857    0.142857     0.142857       0.0   \n",
+       "1  0.200000   0.000000  0.000000  0.000000    0.000000     0.000000       0.2   \n",
+       "2  0.142857   0.000000  0.000000  0.000000    0.000000     0.000000       0.0   \n",
+       "\n",
+       "   learning  preprocessing  techniques  tokenization  stemming  lemmatization  \\\n",
+       "0       0.0            0.0         0.0      0.000000  0.000000       0.000000   \n",
+       "1       0.2            0.2         0.2      0.000000  0.000000       0.000000   \n",
+       "2       0.0            0.0         0.0      0.142857  0.142857       0.142857   \n",
+       "\n",
+       "   important  processing     steps  \n",
+       "0   0.000000    0.000000  0.000000  \n",
+       "1   0.000000    0.000000  0.000000  \n",
+       "2   0.142857    0.142857  0.142857  "
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tf_values = []\n",
+    "\n",
+    "for doc in processed_documents:\n",
+    "    tf_doc = {}\n",
+    "    \n",
+    "    for word in vocabulary:\n",
+    "        tf_doc[word] = doc.count(word) / len(doc)\n",
+    "    \n",
+    "    tf_values.append(tf_doc)\n",
+    "\n",
+    "tf_table = pd.DataFrame(tf_values)\n",
+    "\n",
+    "print(\"Term Frequency Table:\")\n",
+    "tf_table"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "7062b83f-9b88-44c8-8bdc-878879524873",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Inverse Document Frequency Table:\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>text</th>\n",
+       "      <th>analytics</th>\n",
+       "      <th>converts</th>\n",
+       "      <th>data</th>\n",
+       "      <th>meaningful</th>\n",
+       "      <th>information</th>\n",
+       "      <th>students</th>\n",
+       "      <th>learning</th>\n",
+       "      <th>preprocessing</th>\n",
+       "      <th>techniques</th>\n",
+       "      <th>tokenization</th>\n",
+       "      <th>stemming</th>\n",
+       "      <th>lemmatization</th>\n",
+       "      <th>important</th>\n",
+       "      <th>processing</th>\n",
+       "      <th>steps</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0.0</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "      <td>1.098612</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   text  analytics  converts      data  meaningful  information  students  \\\n",
+       "0   0.0   1.098612  1.098612  1.098612    1.098612     1.098612  1.098612   \n",
+       "\n",
+       "   learning  preprocessing  techniques  tokenization  stemming  lemmatization  \\\n",
+       "0  1.098612       1.098612    1.098612      1.098612  1.098612       1.098612   \n",
+       "\n",
+       "   important  processing     steps  \n",
+       "0   1.098612    1.098612  1.098612  "
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "idf_values = {}\n",
+    "\n",
+    "total_documents = len(processed_documents)\n",
+    "\n",
+    "for word in vocabulary:\n",
+    "    document_count = 0\n",
+    "    \n",
+    "    for doc in processed_documents:\n",
+    "        if word in doc:\n",
+    "            document_count = document_count + 1\n",
+    "    \n",
+    "    idf_values[word] = math.log(total_documents / document_count)\n",
+    "\n",
+    "idf_table = pd.DataFrame([idf_values])\n",
+    "\n",
+    "print(\"Inverse Document Frequency Table:\")\n",
+    "idf_table"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "cbee5e7e-0690-4d67-a284-3dba6e17aaed",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "TF-IDF Table:\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>text</th>\n",
+       "      <th>analytics</th>\n",
+       "      <th>converts</th>\n",
+       "      <th>data</th>\n",
+       "      <th>meaningful</th>\n",
+       "      <th>information</th>\n",
+       "      <th>students</th>\n",
+       "      <th>learning</th>\n",
+       "      <th>preprocessing</th>\n",
+       "      <th>techniques</th>\n",
+       "      <th>tokenization</th>\n",
+       "      <th>stemming</th>\n",
+       "      <th>lemmatization</th>\n",
+       "      <th>important</th>\n",
+       "      <th>processing</th>\n",
+       "      <th>steps</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.156945</td>\n",
+       "      <td>0.156945</td>\n",
+       "      <td>0.156945</td>\n",
+       "      <td>0.156945</td>\n",
+       "      <td>0.156945</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.219722</td>\n",
+       "      <td>0.219722</td>\n",
+       "      <td>0.219722</td>\n",
+       "      <td>0.219722</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.156945</td>\n",
+       "      <td>0.156945</td>\n",
+       "      <td>0.156945</td>\n",
+       "      <td>0.156945</td>\n",
+       "      <td>0.156945</td>\n",
+       "      <td>0.156945</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   text  analytics  converts      data  meaningful  information  students  \\\n",
+       "0   0.0   0.156945  0.156945  0.156945    0.156945     0.156945  0.000000   \n",
+       "1   0.0   0.000000  0.000000  0.000000    0.000000     0.000000  0.219722   \n",
+       "2   0.0   0.000000  0.000000  0.000000    0.000000     0.000000  0.000000   \n",
+       "\n",
+       "   learning  preprocessing  techniques  tokenization  stemming  lemmatization  \\\n",
+       "0  0.000000       0.000000    0.000000      0.000000  0.000000       0.000000   \n",
+       "1  0.219722       0.219722    0.219722      0.000000  0.000000       0.000000   \n",
+       "2  0.000000       0.000000    0.000000      0.156945  0.156945       0.156945   \n",
+       "\n",
+       "   important  processing     steps  \n",
+       "0   0.000000    0.000000  0.000000  \n",
+       "1   0.000000    0.000000  0.000000  \n",
+       "2   0.156945    0.156945  0.156945  "
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tfidf_values = []\n",
+    "\n",
+    "for tf_doc in tf_values:\n",
+    "    tfidf_doc = {}\n",
+    "    \n",
+    "    for word in vocabulary:\n",
+    "        tfidf_doc[word] = tf_doc[word] * idf_values[word]\n",
+    "    \n",
+    "    tfidf_values.append(tfidf_doc)\n",
+    "\n",
+    "tfidf_table = pd.DataFrame(tfidf_values)\n",
+    "\n",
+    "print(\"TF-IDF Table:\")\n",
+    "tfidf_table"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fa2dca00-65e3-4700-a501-7f6390a20737",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.13.9"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -1,0 +1,919 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "d6fee474-1d3e-4fbc-8e73-ccb3cc4809e3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "from sklearn.preprocessing import StandardScaler\n",
+    "from sklearn.preprocessing import LabelEncoder\n",
+    "from sklearn.linear_model import LogisticRegression\n",
+    "from sklearn.metrics import confusion_matrix"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "49164650-56c3-4dbe-bc99-af4515fefcf0",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Dataset loaded successfully\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>User ID</th>\n",
+       "      <th>Gender</th>\n",
+       "      <th>Age</th>\n",
+       "      <th>EstimatedSalary</th>\n",
+       "      <th>Purchased</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>15624510</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>19</td>\n",
+       "      <td>19000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>15810944</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>35</td>\n",
+       "      <td>20000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>15668575</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>26</td>\n",
+       "      <td>43000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>15603246</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>27</td>\n",
+       "      <td>57000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>15804002</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>19</td>\n",
+       "      <td>76000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    User ID  Gender  Age  EstimatedSalary  Purchased\n",
+       "0  15624510    Male   19            19000          0\n",
+       "1  15810944    Male   35            20000          0\n",
+       "2  15668575  Female   26            43000          0\n",
+       "3  15603246  Female   27            57000          0\n",
+       "4  15804002    Male   19            76000          0"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df = pd.read_csv(\"Social_Network_Ads.csv\")\n",
+    "\n",
+    "df.columns = df.columns.str.strip()\n",
+    "\n",
+    "print(\"Dataset loaded successfully\")\n",
+    "df.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "419d2947-7718-432f-b479-08eb6b11e5e2",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Dataset Information:\n",
+      "<class 'pandas.core.frame.DataFrame'>\n",
+      "RangeIndex: 400 entries, 0 to 399\n",
+      "Data columns (total 5 columns):\n",
+      " #   Column           Non-Null Count  Dtype \n",
+      "---  ------           --------------  ----- \n",
+      " 0   User ID          400 non-null    int64 \n",
+      " 1   Gender           400 non-null    object\n",
+      " 2   Age              400 non-null    int64 \n",
+      " 3   EstimatedSalary  400 non-null    int64 \n",
+      " 4   Purchased        400 non-null    int64 \n",
+      "dtypes: int64(4), object(1)\n",
+      "memory usage: 15.8+ KB\n",
+      "\n",
+      "Shape of Dataset:\n",
+      "(400, 5)\n",
+      "\n",
+      "Column Names:\n",
+      "Index(['User ID', 'Gender', 'Age', 'EstimatedSalary', 'Purchased'], dtype='object')\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"Dataset Information:\")\n",
+    "df.info()\n",
+    "\n",
+    "print(\"\\nShape of Dataset:\")\n",
+    "print(df.shape)\n",
+    "\n",
+    "print(\"\\nColumn Names:\")\n",
+    "print(df.columns)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "1ae9000d-deee-4461-beda-46678b25c84b",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Missing values in each column:\n",
+      "User ID            0\n",
+      "Gender             0\n",
+      "Age                0\n",
+      "EstimatedSalary    0\n",
+      "Purchased          0\n",
+      "dtype: int64\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"Missing values in each column:\")\n",
+    "print(df.isnull().sum())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "ad899f61-30e1-4f73-ab4b-9240678ce6cb",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Missing values after filling:\n",
+      "User ID            0\n",
+      "Gender             0\n",
+      "Age                0\n",
+      "EstimatedSalary    0\n",
+      "Purchased          0\n",
+      "dtype: int64\n"
+     ]
+    }
+   ],
+   "source": [
+    "numeric_columns = df.select_dtypes(include=[np.number]).columns\n",
+    "\n",
+    "for col in numeric_columns:\n",
+    "    df[col] = df[col].fillna(df[col].median())\n",
+    "\n",
+    "categorical_columns = df.select_dtypes(include=[\"object\"]).columns\n",
+    "\n",
+    "for col in categorical_columns:\n",
+    "    df[col] = df[col].fillna(df[col].mode()[0])\n",
+    "\n",
+    "print(\"Missing values after filling:\")\n",
+    "print(df.isnull().sum())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "a2946abc-78b1-498d-8f93-564fe6a4b76b",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Dataset after encoding categorical column:\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>User ID</th>\n",
+       "      <th>Gender</th>\n",
+       "      <th>Age</th>\n",
+       "      <th>EstimatedSalary</th>\n",
+       "      <th>Purchased</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>15624510</td>\n",
+       "      <td>1</td>\n",
+       "      <td>19</td>\n",
+       "      <td>19000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>15810944</td>\n",
+       "      <td>1</td>\n",
+       "      <td>35</td>\n",
+       "      <td>20000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>15668575</td>\n",
+       "      <td>0</td>\n",
+       "      <td>26</td>\n",
+       "      <td>43000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>15603246</td>\n",
+       "      <td>0</td>\n",
+       "      <td>27</td>\n",
+       "      <td>57000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>15804002</td>\n",
+       "      <td>1</td>\n",
+       "      <td>19</td>\n",
+       "      <td>76000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    User ID  Gender  Age  EstimatedSalary  Purchased\n",
+       "0  15624510       1   19            19000          0\n",
+       "1  15810944       1   35            20000          0\n",
+       "2  15668575       0   26            43000          0\n",
+       "3  15603246       0   27            57000          0\n",
+       "4  15804002       1   19            76000          0"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "if \"Gender\" in df.columns:\n",
+    "    label_encoder = LabelEncoder()\n",
+    "    df[\"Gender\"] = label_encoder.fit_transform(df[\"Gender\"])\n",
+    "\n",
+    "print(\"Dataset after encoding categorical column:\")\n",
+    "df.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "b01e6aa2-5a2d-4197-84a0-f2a8ef1b48cf",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Dataset after removing User ID column:\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Gender</th>\n",
+       "      <th>Age</th>\n",
+       "      <th>EstimatedSalary</th>\n",
+       "      <th>Purchased</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>1</td>\n",
+       "      <td>19</td>\n",
+       "      <td>19000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>1</td>\n",
+       "      <td>35</td>\n",
+       "      <td>20000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>0</td>\n",
+       "      <td>26</td>\n",
+       "      <td>43000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>0</td>\n",
+       "      <td>27</td>\n",
+       "      <td>57000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>1</td>\n",
+       "      <td>19</td>\n",
+       "      <td>76000</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   Gender  Age  EstimatedSalary  Purchased\n",
+       "0       1   19            19000          0\n",
+       "1       1   35            20000          0\n",
+       "2       0   26            43000          0\n",
+       "3       0   27            57000          0\n",
+       "4       1   19            76000          0"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "if \"User ID\" in df.columns:\n",
+    "    df = df.drop(\"User ID\", axis=1)\n",
+    "\n",
+    "print(\"Dataset after removing User ID column:\")\n",
+    "df.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "7e093bf3-decb-4694-9d46-fd17f3c6d0df",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Target column: Purchased\n"
+     ]
+    }
+   ],
+   "source": [
+    "target_column = \"Purchased\"\n",
+    "\n",
+    "print(\"Target column:\", target_column)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "30a718df-661b-4ddf-ad16-292b50a9d794",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Input Features:\n",
+      "   Gender  Age  EstimatedSalary\n",
+      "0       1   19            19000\n",
+      "1       1   35            20000\n",
+      "2       0   26            43000\n",
+      "3       0   27            57000\n",
+      "4       1   19            76000\n",
+      "\n",
+      "Target Variable:\n",
+      "0    0\n",
+      "1    0\n",
+      "2    0\n",
+      "3    0\n",
+      "4    0\n",
+      "Name: Purchased, dtype: int64\n"
+     ]
+    }
+   ],
+   "source": [
+    "X = df.drop(target_column, axis=1)\n",
+    "\n",
+    "y = df[target_column]\n",
+    "\n",
+    "print(\"Input Features:\")\n",
+    "print(X.head())\n",
+    "\n",
+    "print(\"\\nTarget Variable:\")\n",
+    "print(y.head())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "b6eadcc5-d648-4a1d-941c-dab30781ef86",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Training data size: (300, 3)\n",
+      "Testing data size: (100, 3)\n"
+     ]
+    }
+   ],
+   "source": [
+    "X_train, X_test, y_train, y_test = train_test_split(\n",
+    "    X,\n",
+    "    y,\n",
+    "    test_size=0.25,\n",
+    "    random_state=42\n",
+    ")\n",
+    "\n",
+    "print(\"Training data size:\", X_train.shape)\n",
+    "print(\"Testing data size:\", X_test.shape)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "3de8d5f2-3cb6-485c-9616-1ce69878b731",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature scaling completed\n"
+     ]
+    }
+   ],
+   "source": [
+    "scaler = StandardScaler()\n",
+    "\n",
+    "X_train = scaler.fit_transform(X_train)\n",
+    "\n",
+    "X_test = scaler.transform(X_test)\n",
+    "\n",
+    "print(\"Feature scaling completed\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "b3f2ac4c-77a2-4c04-ae48-94beaefa88b5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "model = LogisticRegression()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "8f994bab-1690-4987-a2f5-ee96e5bfaeff",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Model training completed\n"
+     ]
+    }
+   ],
+   "source": [
+    "model.fit(X_train, y_train)\n",
+    "\n",
+    "print(\"Model training completed\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "562a0622-b9a3-44db-be71-88aeaff85a07",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Predicted values:\n",
+      "[0 1 0 1 0 0 1 0 0 0]\n"
+     ]
+    }
+   ],
+   "source": [
+    "y_pred = model.predict(X_test)\n",
+    "\n",
+    "print(\"Predicted values:\")\n",
+    "print(y_pred[:10])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "9ace3263-a098-477a-a3f9-ee0cc4683b4c",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Actual</th>\n",
+       "      <th>Predicted</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   Actual  Predicted\n",
+       "0       0          0\n",
+       "1       1          1\n",
+       "2       0          0\n",
+       "3       1          1\n",
+       "4       0          0\n",
+       "5       0          0\n",
+       "6       1          1\n",
+       "7       0          0\n",
+       "8       0          0\n",
+       "9       0          0"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "comparison = pd.DataFrame({\n",
+    "    \"Actual\": y_test.values,\n",
+    "    \"Predicted\": y_pred\n",
+    "})\n",
+    "\n",
+    "comparison.head(10)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "174ac3d3-19af-481c-97f6-bb0418d8e968",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Confusion Matrix:\n",
+      "[[61  2]\n",
+      " [10 27]]\n"
+     ]
+    }
+   ],
+   "source": [
+    "cm = confusion_matrix(y_test, y_pred)\n",
+    "\n",
+    "print(\"Confusion Matrix:\")\n",
+    "print(cm)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "b175eba3-8732-478b-9944-f2b218bae4c4",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "True Negative: 61\n",
+      "False Positive: 2\n",
+      "False Negative: 10\n",
+      "True Positive: 27\n"
+     ]
+    }
+   ],
+   "source": [
+    "TN = cm[0][0]\n",
+    "FP = cm[0][1]\n",
+    "FN = cm[1][0]\n",
+    "TP = cm[1][1]\n",
+    "\n",
+    "print(\"True Negative:\", TN)\n",
+    "print(\"False Positive:\", FP)\n",
+    "print(\"False Negative:\", FN)\n",
+    "print(\"True Positive:\", TP)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "32a43c45-9f67-4339-b582-34109cae2888",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Accuracy: 0.88\n"
+     ]
+    }
+   ],
+   "source": [
+    "accuracy = (TP + TN) / (TP + TN + FP + FN)\n",
+    "\n",
+    "print(\"Accuracy:\", accuracy)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "8b804353-27ed-4106-b117-f1ae075cc140",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Error Rate: 0.12\n"
+     ]
+    }
+   ],
+   "source": [
+    "error_rate = (FP + FN) / (TP + TN + FP + FN)\n",
+    "\n",
+    "print(\"Error Rate:\", error_rate)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "f4afb9c1-8570-4dae-8b95-365a2b79a088",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Precision: 0.9310344827586207\n"
+     ]
+    }
+   ],
+   "source": [
+    "precision = TP / (TP + FP)\n",
+    "\n",
+    "print(\"Precision:\", precision)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "f04d711b-a8cc-4306-8139-68d887237221",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Recall: 0.7297297297297297\n"
+     ]
+    }
+   ],
+   "source": [
+    "recall = TP / (TP + FN)\n",
+    "\n",
+    "print(\"Recall:\", recall)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "7a540ec5-3033-46c2-864e-05f46e5f107c",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Model Performance Measures\n",
+      "--------------------------\n",
+      "True Positive: 27\n",
+      "False Positive: 2\n",
+      "True Negative: 61\n",
+      "False Negative: 10\n",
+      "Accuracy: 0.88\n",
+      "Error Rate: 0.12\n",
+      "Precision: 0.9310344827586207\n",
+      "Recall: 0.7297297297297297\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"Model Performance Measures\")\n",
+    "print(\"--------------------------\")\n",
+    "print(\"True Positive:\", TP)\n",
+    "print(\"False Positive:\", FP)\n",
+    "print(\"True Negative:\", TN)\n",
+    "print(\"False Negative:\", FN)\n",
+    "print(\"Accuracy:\", accuracy)\n",
+    "print(\"Error Rate:\", error_rate)\n",
+    "print(\"Precision:\", precision)\n",
+    "print(\"Recall:\", recall)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "00ea201d-7315-4d8e-9053-272db4e892ac",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.13.9"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
